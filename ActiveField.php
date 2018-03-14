@@ -366,7 +366,7 @@ class ActiveField extends \yii\widgets\ActiveField
             $config['template'] = "{label}\n{beginWrapper}\n{input}\n{error}\n{endWrapper}\n{hint}";
             $cssClasses = [
                 'offset' => 'offset-md-2',
-                'label' => 'col-md-2 col-form-label',
+                'label' => 'col-md-2 col-form-label text-right font-weight-bold',
                 'wrapper' => 'col-md-8',
                 'error' => '',
                 'hint' => 'col-md-2',
@@ -376,7 +376,7 @@ class ActiveField extends \yii\widgets\ActiveField
             }
             $config['horizontalCssClasses'] = $cssClasses;
             $config['wrapperOptions'] = ['class' => $cssClasses['wrapper']];
-            $config['labelOptions'] = ['class' => 'form-control-label ' . $cssClasses['label']];
+            $config['labelOptions'] = ['class' => $cssClasses['label']];
             $config['errorOptions'] = ['class' => 'text-danger ' . $cssClasses['error']];
             $config['hintOptions'] = ['class' => 'text-muted ' . $cssClasses['hint']];
             $config['options'] = ['class' => 'form-group row'];
