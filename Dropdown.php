@@ -73,7 +73,6 @@ class Dropdown extends Widget
     {
         if ($this->submenuOptions === null) {
             // copying of [[options]] kept for BC
-            // @todo separate [[submenuOptions]] from [[options]] completely before 2.1 release
             $this->submenuOptions = $this->options;
             unset($this->submenuOptions['id']);
         }

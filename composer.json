@@ -15,16 +15,29 @@
         {
             "name": "Qiang Xue",
             "email": "qiang.xue@gmail.com"
+        },
+        {
+            "name": "Alex Loban",
+            "email": "lav451@gmail.com"
         }
     ],
+    "prefer-stable": true,
     "require": {
         "yiisoft/yii2": "~2.0.6",
-        "bower-asset/bootstrap": "dev-v4-dev",
+        "bower-asset/bootstrap": "~4.0",
         "bower-asset/popper.js": "~1.12.0"
     },
     "autoload": {
         "psr-4": {
             "yii\\bootstrap\\": ""
+        }
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "yiiunit\\bootstrap\\": "tests"
         }
     },
     "repositories": [

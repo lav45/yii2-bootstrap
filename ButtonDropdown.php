@@ -47,11 +47,6 @@ class ButtonDropdown extends Widget
      */
     public $containerOptions = [];
     /**
-     * @var array the HTML attributes of the button.
-     * @see \yii\helpers\Html::renderTagAttributes() for details on how attributes are being rendered.
-     */
-    public $options = [];
-    /**
      * @var array the configuration array for [[Dropdown]].
      */
     public $dropdown = [];
@@ -79,8 +74,7 @@ class ButtonDropdown extends Widget
      */
     public function run()
     {
-        // @todo use [[options]] instead of [[containerOptions]] and introduce [[buttonOptions]] before 2.1 release
-        Html::addCssClass($this->containerOptions, ['widget' => 'btn-group']);
+        Html::addCssClass($this->containerOptions, ['widget' => 'dropdown']);
         $options = $this->containerOptions;
         $tag = ArrayHelper::remove($options, 'tag', 'div');
 
