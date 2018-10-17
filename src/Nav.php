@@ -59,30 +59,30 @@ class Nav extends Widget
      *
      * - label: string, required, the nav item label.
      * - url: optional, the item's URL. Defaults to "#".
-     * - visible: boolean, optional, whether this menu item is visible. Defaults to true.
+     * - visible: bool, optional, whether this menu item is visible. Defaults to true.
      * - linkOptions: array, optional, the HTML attributes of the item's link.
      * - options: array, optional, the HTML attributes of the item container (LI).
-     * - active: boolean, optional, whether the item should be on active state or not.
+     * - active: bool, optional, whether the item should be on active state or not.
      * - dropDownOptions: array, optional, the HTML options that will passed to the [[Dropdown]] widget.
      * - items: array|string, optional, the configuration array for creating a [[Dropdown]] widget,
      *   or a string representing the dropdown menu. Note that Bootstrap does not support sub-dropdown menus.
-     * - encode: boolean, optional, whether the label will be HTML-encoded. If set, supersedes the $encodeLabels option for only this item.
+     * - encode: bool, optional, whether the label will be HTML-encoded. If set, supersedes the $encodeLabels option for only this item.
      *
      * If a menu item is a string, it will be rendered directly without HTML encoding.
      */
     public $items = [];
     /**
-     * @var boolean whether the nav items labels should be HTML-encoded.
+     * @var bool whether the nav items labels should be HTML-encoded.
      */
     public $encodeLabels = true;
     /**
-     * @var boolean whether to automatically activate items according to whether their route setting
+     * @var bool whether to automatically activate items according to whether their route setting
      * matches the currently requested route.
      * @see isItemActive
      */
     public $activateItems = true;
     /**
-     * @var boolean whether to activate parent menu items when one of the corresponding child menu items is active.
+     * @var bool whether to activate parent menu items when one of the corresponding child menu items is active.
      */
     public $activateParents = false;
     /**
@@ -100,16 +100,10 @@ class Nav extends Widget
      */
     public $params;
     /**
-     * @var string this property allows you to customize the HTML which is used to generate the drop down caret symbol,
-     * which is displayed next to the button text to indicate the drop down functionality.
-     * Defaults to `null` which means `<span class="caret"></span>` will be used. To disable the caret, set this property to be an empty string.
+     * @var string name of a class to use for rendering dropdowns within this widget. Defaults to [[Dropdown]].
+     * @since 2.0.7
      */
-    public $dropDownCaret;
-    /**
-     * @var string name of a class to use for rendering dropdowns withing this widget. Defaults to [[Dropdown]].
-	 * @since 2.0.7
-     */
-	public $dropdownClass = 'yii\bootstrap\Dropdown';
+    public $dropdownClass = 'yii\bootstrap\Dropdown';
 
 
     /**
@@ -124,14 +118,12 @@ class Nav extends Widget
         if ($this->params === null) {
             $this->params = Yii::$app->request->getQueryParams();
         }
-        if ($this->dropDownCaret === null) {
-            $this->dropDownCaret = '<span class="caret"></span>';
-        }
         Html::addCssClass($this->options, ['widget' => 'nav']);
     }
 
     /**
      * Renders the widget.
+     * @throws InvalidConfigException
      */
     public function run()
     {
@@ -141,6 +133,7 @@ class Nav extends Widget
 
     /**
      * Renders widget items.
+     * @throws InvalidConfigException
      */
     public function renderItems()
     {
@@ -160,6 +153,7 @@ class Nav extends Widget
      * @param string|array $item the item to render.
      * @return string the rendering result.
      * @throws InvalidConfigException
+     * @throws \Exception
      */
     public function renderItem($item)
     {
@@ -198,6 +192,7 @@ class Nav extends Widget
         Html::addCssClass($linkOptions, 'nav-link');
 
         if ($this->activateItems && $active) {
+            Html::addCssClass($options, 'active'); // In NavBar the "nav-item" get's activated
             Html::addCssClass($linkOptions, 'active');
         }
 
@@ -210,13 +205,14 @@ class Nav extends Widget
      * @param array $items the given items. Please refer to [[Dropdown::items]] for the array structure.
      * @param array $parentItem the parent item information. Please refer to [[items]] for the structure of this array.
      * @return string the rendering result.
+     * @throws \Exception
      * @since 2.0.1
      */
     protected function renderDropdown($items, $parentItem)
     {
-		/** @var Widget $dropdownClass */
-		$dropdownClass = $this->dropdownClass;
-		return $dropdownClass::widget([
+        /** @var Widget $dropdownClass */
+        $dropdownClass = $this->dropdownClass;
+        return $dropdownClass::widget([
             'options' => ArrayHelper::getValue($parentItem, 'dropDownOptions', []),
             'items' => $items,
             'encodeLabels' => $this->encodeLabels,
@@ -228,15 +224,27 @@ class Nav extends Widget
     /**
      * Check to see if a child item is active optionally activating the parent.
      * @param array $items @see items
-     * @param boolean $active should the parent be active too
+     * @param bool $active should the parent be active too
      * @return array @see items
      */
     protected function isChildActive($items, &$active)
     {
         foreach ($items as $i => $child) {
+            if (is_array($child) && !ArrayHelper::getValue($child, 'visible', true)) {
+                continue;
+            }
             if (ArrayHelper::remove($items[$i], 'active', false) || $this->isItemActive($child)) {
                 Html::addCssClass($items[$i]['options'], 'active');
                 if ($this->activateParents) {
+                    $active = true;
+                }
+            }
+            $childItems = ArrayHelper::getValue($child, 'items');
+            if (is_array($childItems)) {
+                $activeParent = false;
+                $items[$i]['items'] = $this->isChildActive($childItems, $activeParent);
+                if ($activeParent) {
+                    Html::addCssClass($items[$i]['options'], 'active');
                     $active = true;
                 }
             }
@@ -252,7 +260,7 @@ class Nav extends Widget
      * Only when its route and parameters match [[route]] and [[params]], respectively, will a menu item
      * be considered active.
      * @param array $item the menu item to be checked
-     * @return boolean whether the menu item is active
+     * @return bool whether the menu item is active
      */
     protected function isItemActive($item)
     {

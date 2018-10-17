@@ -196,8 +196,8 @@ EXPECTED;
         ]);
 
         $expected = <<<EXPECTED
-<ul id="w0" class="nav"><li class="nav-item"><a class="nav-link active" href="#">Item1</a></li>
-<li class="nav-item"><a class="nav-link active" href="/base/index.php?r=site%2Findex">Item2</a></li></ul>
+<ul id="w0" class="nav"><li class="nav-item active"><a class="nav-link active" href="#">Item1</a></li>
+<li class="nav-item active"><a class="nav-link active" href="/base/index.php?r=site%2Findex">Item2</a></li></ul>
 EXPECTED;
 
         $this->assertEqualsWithoutLE($expected, $out);
@@ -230,7 +230,7 @@ EXPECTED;
 
         $expected = <<<EXPECTED
 <ul id="w0" class="nav"><li class="nav-item"><a class="nav-link" href="#">Item1</a></li>
-<li class="dropdown nav-item"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">Item2</a><div id="w1" class="dropdown-menu"><a class="dropdown-item" href="/base/index.php?r=site%2Findex" tabindex="-1">Page2</a>
+<li class="dropdown nav-item"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">Item2</a><div id="w1" class="dropdown-menu"><a class="dropdown-item" href="/base/index.php?r=site%2Findex">Page2</a>
 <h6 class="dropdown-header">Page3</h6></div></li></ul>
 EXPECTED;
 
@@ -263,12 +263,46 @@ EXPECTED;
 
         $expected = <<<EXPECTED
 <ul id="w0" class="nav"><li class="nav-item"><a class="nav-link" href="#">Item1</a></li>
-<li class="dropdown nav-item"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">Item2</a><div id="w1" class="dropdown-menu"><a class="dropdown-item" href="/base/index.php?r=site%2Findex" tabindex="-1">Page2</a>
+<li class="dropdown nav-item"><a class="dropdown-toggle nav-link" href="#" data-toggle="dropdown">Item2</a><div id="w1" class="dropdown-menu"><a class="dropdown-item" href="/base/index.php?r=site%2Findex">Page2</a>
 <h6 class="dropdown-header">Page3</h6></div></li></ul>
 EXPECTED;
 
         $this->assertEqualsWithoutLE($expected, $out);
         $this->removeMockedAction();
+    }
+
+    /**
+     * @see https://github.com/yiisoft/yii2-bootstrap/issues/96
+     * @see https://github.com/yiisoft/yii2-bootstrap/issues/157
+     */
+    public function testDeepActivateParents()
+    {
+        Nav::$counter = 0;
+        $out = Nav::widget([
+            'activateParents' => true,
+            'items' => [
+                [
+                    'label' => 'Dropdown',
+                    'items' => [
+                        [
+                            'label' => 'Sub-dropdown',
+                            'items' => [
+                                ['label' => 'Page', 'content' => 'Page', 'active' => true],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $expected = <<<EXPECTED
+<ul id="w0" class="nav"><li class="dropdown nav-item active"><a class="dropdown-toggle nav-link active" href="#" data-toggle="dropdown">Dropdown</a><div id="w1" class="dropdown-menu"><div class="dropdown" aria-expanded="false">
+<a class="dropdown-item dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">Sub-dropdown</a>
+<div id="w2" class="dropdown-submenu dropdown-menu"><h6 class="dropdown-header">Page</h6></div>
+</div></div></li></ul>
+EXPECTED;
+
+        $this->assertEqualsWithoutLE($expected, $out);
     }
 
     /**

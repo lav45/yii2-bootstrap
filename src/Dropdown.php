@@ -28,9 +28,9 @@ use yii\helpers\ArrayHelper;
  *     ?>
  * </div>
  * ```
- * @see http://getbootstrap.com/javascript/#dropdowns
+ * @see https://getbootstrap.com/docs/4.1/components/dropdowns/
  * @author Antonio Ramirez <amigo.cobos@gmail.com>
- * @since 2.0
+ * @author Simon Karlen <simi.albi@gmail.com>
  */
 class Dropdown extends Widget
 {
@@ -39,10 +39,10 @@ class Dropdown extends Widget
      * or an array representing a single menu with the following structure:
      *
      * - label: string, required, the label of the item link.
-     * - encode: boolean, optional, whether to HTML-encode item label.
+     * - encode: bool, optional, whether to HTML-encode item label.
      * - url: string|array, optional, the URL of the item link. This will be processed by [[\yii\helpers\Url::to()]].
      *   If not set, the item will be treated as a menu header when the item has no sub-menu.
-     * - visible: boolean, optional, whether this menu item is visible. Defaults to true.
+     * - visible: bool, optional, whether this menu item is visible. Defaults to true.
      * - linkOptions: array, optional, the HTML attributes of the item link.
      * - options: array, optional, the HTML attributes of the item.
      * - items: array, optional, the submenu items. The structure is the same as this property.
@@ -54,7 +54,7 @@ class Dropdown extends Widget
      */
     public $items = [];
     /**
-     * @var boolean whether the labels for header items should be HTML-encoded.
+     * @var bool whether the labels for header items should be HTML-encoded.
      */
     public $encodeLabels = true;
     /**
@@ -62,26 +62,20 @@ class Dropdown extends Widget
      * If not set - [[options]] value will be used for it.
      * @since 2.0.5
      */
-    public $submenuOptions;
-
+    public $submenuOptions = [];
 
     /**
-     * Initializes the widget.
-     * If you override this method, make sure you call the parent implementation first.
+     * {@inheritdoc}
      */
     public function init()
     {
-        if ($this->submenuOptions === null) {
-            // copying of [[options]] kept for BC
-            $this->submenuOptions = $this->options;
-            unset($this->submenuOptions['id']);
-        }
         parent::init();
         Html::addCssClass($this->options, ['widget' => 'dropdown-menu']);
     }
 
     /**
      * Renders the widget.
+     * @throws InvalidConfigException
      */
     public function run()
     {
@@ -96,6 +90,7 @@ class Dropdown extends Widget
      * @param array $options the container HTML attributes
      * @return string the rendering result.
      * @throws InvalidConfigException if the label option is not specified in one of the items.
+     * @throws \Exception
      */
     protected function renderItems($items, $options = [])
     {
@@ -130,11 +125,23 @@ class Dropdown extends Widget
                 if (isset($item['submenuOptions'])) {
                     $submenuOptions = array_merge($submenuOptions, $item['submenuOptions']);
                 }
-                $content = Html::a($label, $url === null ? '#' : $url, $linkOptions)
-                    . $this->renderItems($item['items'], $submenuOptions);
-                Html::addCssClass($itemOptions, ['widget' => 'dropdown-submenu']);
+                Html::addCssClass($submenuOptions, ['dropdown-submenu']);
+                Html::addCssClass($linkOptions, ['dropdown-toggle']);
 
-                $lines[] = Html::tag('div', $content, $itemOptions);
+                $lines[] = Html::beginTag('div', ['class' => ['dropdown'], 'aria-expanded' => 'false']);
+                $lines[] = Html::a($label, $url, array_merge([
+                    'data-toggle' => 'dropdown',
+                    'aria-haspopup' => 'true',
+                    'aria-expanded' => 'false',
+                    'role' => 'button'
+                ], $linkOptions));
+                $lines[] = static::widget([
+                    'items' => $item['items'],
+                    'options' => $submenuOptions,
+                    'submenuOptions' => $submenuOptions,
+                    'encodeLabels' => $this->encodeLabels
+                ]);
+                $lines[] = Html::endTag('div');
             }
         }
 

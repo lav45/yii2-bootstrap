@@ -60,16 +60,16 @@ class TabsTest extends TestCase
             'w0', // nav widget container
                 "#$page1", // Page1
 
-                'w1', // Dropdown1
-                    "$page2", // Page2
-                    "$page3", // Page3
+            'w1', // Dropdown1
+                "$page2", // Page2
+                "$page3", // Page3
 
 
-                'w2', // Dropdown2
-                    "#$page4", // Page4
-                    "#$page5", // Page5
+            'w2', // Dropdown2
+                "#$page4", // Page4
+                "#$page5", // Page5
 
-                'w3', // Dropdown3
+            'w3', // Dropdown3
 
             // containers
             "id=\"$page1\"",
@@ -78,7 +78,7 @@ class TabsTest extends TestCase
             "id=\"$page4\"",
             "id=\"$page5\"",
             Html::a($extAnchor1, $extUrl1, ['class' => 'nav-link']),
-            Html::a($extAnchor2, $extUrl2, ['tabindex' => -1, 'class' => 'dropdown-item']),
+            Html::a($extAnchor2, $extUrl2, [/*'tabindex' => -1, */'class' => 'dropdown-item']),
         ];
 
         foreach ($shouldContain as $string) {
@@ -137,5 +137,82 @@ class TabsTest extends TestCase
         ]);
 
         $this->assertContains('<' . $checkTag, $out);
+    }
+
+    public function testTabContentOptions()
+    {
+        $checkAttribute = "test_attribute";
+        $checkValue = "check_attribute";
+
+        $out = Tabs::widget([
+            'items' => [
+                [
+                    'label' => 'Page1', 'content' => 'Page1'
+                ]
+            ],
+            'tabContentOptions' => [
+                $checkAttribute => $checkValue
+            ]
+        ]);
+
+        $this->assertContains($checkAttribute . '=', $out);
+        $this->assertContains($checkValue, $out);
+    }
+
+    public function testActivateFirstVisibleTab()
+    {
+        $html = Tabs::widget([
+            'id'=>'mytab',
+            'items' => [
+                [
+                    'label' => 'Tab 1',
+                    'content' => 'some content',
+                    'visible' => false
+                ],
+                [
+                    'label' => 'Tab 2',
+                    'content' => 'some content'
+                ],
+                [
+                    'label' => 'Tab 3',
+                    'content' => 'some content'
+                ],
+                [
+                    'label' => 'Tab 4',
+                    'content' => 'some content'
+                ]
+            ]
+        ]);
+
+        $this->assertNotContains('<li class="nav-item"><a class="nav-link active" href="#mytab-tab0" aria-selected="true" data-toggle="tab" aria-controls="mytab-tab0">Tab 1</a></li>', $html);
+        $this->assertContains('<li class="nav-item"><a class="nav-link active" href="#mytab-tab1" aria-selected="true" data-toggle="tab" aria-controls="mytab-tab1">Tab 2</a></li>', $html);
+    }
+
+    public function testActivateTab()
+    {
+        $html = Tabs::widget([
+            'id'=>'mytab',
+            'items' => [
+                [
+                    'label' => 'Tab 1',
+                    'content' => 'some content',
+                    'visible'=>false
+                ],
+                [
+                    'label' => 'Tab 2',
+                    'content' => 'some content'
+                ],
+                [
+                    'label' => 'Tab 3',
+                    'content' => 'some content',
+                    'active' => true
+                ],
+                [
+                    'label' => 'Tab 4',
+                    'content' => 'some content'
+                ]
+            ]
+        ]);
+        $this->assertContains('<li class="nav-item"><a class="nav-link active" href="#mytab-tab2" aria-selected="true" data-toggle="tab" aria-controls="mytab-tab2">Tab 3</a></li>', $html);
     }
 }

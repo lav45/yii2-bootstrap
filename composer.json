@@ -17,6 +17,23 @@
             "email": "qiang.xue@gmail.com"
         },
         {
+            "name": "Alexander Makarov",
+            "email": "sam@rmcreative.ru",
+            "homepage": "http://rmcreative.ru/"
+        },
+        {
+            "name": "Antonio Ramirez",
+            "email": "amigo.cobos@gmail.com"
+        },
+        {
+            "name": "Paul Klimov",
+            "email": "klimov.paul@gmail.com"
+        },
+        {
+            "name": "Simon Karlen",
+            "email": "simi.albi@gmail.com"
+        },
+        {
             "name": "Alex Loban",
             "email": "lav451@gmail.com"
         }
@@ -27,13 +44,15 @@
         "bower-asset/bootstrap": "~4.0",
         "bower-asset/popper.js": "~1.12.0"
     },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "yiisoft/yii2-coding-standards": "~2.0",
+        "phpunit/phpunit": "*"
+    },
     "autoload": {
         "psr-4": {
-            "yii\\bootstrap\\": ""
+            "yii\\bootstrap\\": "src"
         }
-    },
-    "require-dev": {
-        "roave/security-advisories": "dev-master"
     },
     "autoload-dev": {
         "psr-4": {
@@ -48,7 +67,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0.x-dev"
+            "dev-master": "2.3.x-dev"
         }
     }
 }

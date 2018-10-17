@@ -14,5 +14,5 @@ php composer.phar require --prefer-dist yiisoft/yii2-bootstrap
 或者在项目目录的 `composer.json` 文件中添加如下代码
 
 ```
-"yiisoft/yii2-bootstrap": "~2.0.0"
+"yiisoft/yii2-bootstrap": "~2.3.0"
 ```

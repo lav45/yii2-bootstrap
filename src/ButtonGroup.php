@@ -35,11 +35,11 @@ use yii\helpers\ArrayHelper;
  *
  * Pressing on the button should be handled via JavaScript. See the following for details:
  *
- * @see http://getbootstrap.com/javascript/#buttons
- * @see http://getbootstrap.com/components/#btn-groups
+ * @see https://getbootstrap.com/docs/4.1/components/buttons/
+ * @see https://getbootstrap.com/docs/4.1/components/button-group/
  *
  * @author Antonio Ramirez <amigo.cobos@gmail.com>
- * @since 2.0
+ * @author Simon Karlen <simi.albi@gmail.com>
  */
 class ButtonGroup extends Widget
 {
@@ -49,27 +49,30 @@ class ButtonGroup extends Widget
      *
      * - label: string, required, the button label.
      * - options: array, optional, the HTML attributes of the button.
-     * - visible: boolean, optional, whether this button is visible. Defaults to true.
+     * - visible: bool, optional, whether this button is visible. Defaults to true.
      */
     public $buttons = [];
     /**
-     * @var boolean whether to HTML-encode the button labels.
+     * @var bool whether to HTML-encode the button labels.
      */
     public $encodeLabels = true;
 
 
     /**
-     * Initializes the widget.
-     * If you override this method, make sure you call the parent implementation first.
+     * {@inheritdoc}
      */
     public function init()
     {
         parent::init();
         Html::addCssClass($this->options, ['widget' => 'btn-group']);
+        if (!isset($this->options['role'])) {
+            $this->options['role'] = 'group';
+        }
     }
 
     /**
-     * Renders the widget.
+     * {@inheritdoc}
+     * @throws \Exception
      */
     public function run()
     {
@@ -80,6 +83,7 @@ class ButtonGroup extends Widget
     /**
      * Generates the buttons that compound the group as specified on [[buttons]].
      * @return string the rendering result.
+     * @throws \Exception
      */
     protected function renderButtons()
     {
@@ -94,6 +98,9 @@ class ButtonGroup extends Widget
                 $button['view'] = $this->getView();
                 if (!isset($button['encodeLabel'])) {
                     $button['encodeLabel'] = $this->encodeLabels;
+                }
+                if (!isset($button['options']['type'])) {
+                    ArrayHelper::setValue($button, 'options.type', 'button');
                 }
                 $buttons[] = Button::widget($button);
             } else {

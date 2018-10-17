@@ -16,22 +16,28 @@ use yii\base\InvalidConfigException;
  * method, for example like this:
  *
  * ```php
- * <?= $form->field($model, 'item_id')->widget(\yii\bootstrap\ToggleButtonGroup::classname(), [
- *     // configure additional widget properties here
+ * <?= $form->field($model, 'item_id')->widget(\yii\bootstrap\ToggleButtonGroup::class, [
+ *     'type' => \yii\bootstrap\ToggleButtonGroup::TYPE_CHECKBOX
+ *     'items' => [
+ *         'fooValue' => 'BarLabel',
+ *         'barValue' => 'BazLabel'
+ *     ]
  * ]) ?>
  * ```
  *
  * @see http://getbootstrap.com/javascript/#buttons-checkbox-radio
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
+ * @author Simon Karlen <simi.albi@gmail.com>
  * @since 2.0.6
  */
 class ToggleButtonGroup extends InputWidget
 {
+    const TYPE_CHECKBOX = 'checkbox';
+    const TYPE_RADIO = 'radio';
+
     /**
-     * @var string input type, can be:
-     * - 'checkbox'
-     * - 'radio'
+     * @var string input type, can be [[TYPE_CHECKBOX]] or [[TYPE_RADIO]]
      */
     public $type;
     /**
@@ -46,24 +52,25 @@ class ToggleButtonGroup extends InputWidget
      */
     public $labelOptions = [];
     /**
-     * @var boolean whether the items labels should be HTML-encoded.
+     * @var bool whether the items labels should be HTML-encoded.
      */
     public $encodeLabels = true;
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function init()
     {
         parent::init();
         $this->registerPlugin('button');
-        Html::addCssClass($this->options, 'btn-group');
+        Html::addCssClass($this->options, ['btn-group']);
         $this->options['data-toggle'] = 'buttons';
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     * @throws InvalidConfigException
      */
     public function run()
     {
@@ -74,15 +81,13 @@ class ToggleButtonGroup extends InputWidget
             case 'checkbox':
                 if ($this->hasModel()) {
                     return Html::activeCheckboxList($this->model, $this->attribute, $this->items, $this->options);
-                } else {
-                    return Html::checkboxList($this->name, $this->value, $this->items, $this->options);
                 }
+                return Html::checkboxList($this->name, $this->value, $this->items, $this->options);
             case 'radio':
                 if ($this->hasModel()) {
-                    return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->options); 
-                } else {
-                    return Html::radioList($this->name, $this->value, $this->items, $this->options); 
+                    return Html::activeRadioList($this->model, $this->attribute, $this->items, $this->options);
                 }
+                return Html::radioList($this->name, $this->value, $this->items, $this->options);
             default:
                 throw new InvalidConfigException("Unsupported type '{$this->type}'");
         }
@@ -90,10 +95,10 @@ class ToggleButtonGroup extends InputWidget
 
     /**
      * Default callback for checkbox/radio list item rendering.
-     * @param integer $index item index.
+     * @param int $index item index.
      * @param string $label item label.
      * @param string $name input name.
-     * @param boolean $checked whether value is checked or not.
+     * @param bool $checked whether value is checked or not.
      * @param string $value input value.
      * @return string generated HTML.
      * @see Html::checkbox()
@@ -102,6 +107,7 @@ class ToggleButtonGroup extends InputWidget
     public function renderItem($index, $label, $name, $checked, $value)
     {
         $labelOptions = $this->labelOptions;
+        $labelOptions['wrapInput'] = true;
         Html::addCssClass($labelOptions, 'btn');
         if ($checked) {
             Html::addCssClass($labelOptions, 'active');
@@ -110,6 +116,12 @@ class ToggleButtonGroup extends InputWidget
         if ($this->encodeLabels) {
             $label = Html::encode($label);
         }
-        return Html::$type($name, $checked, ['label' => $label, 'labelOptions' => $labelOptions, 'value' => $value]);
+        return Html::$type($name, $checked, [
+            'class'=>'d-none',
+            'label' => $label,
+            'labelOptions' => $labelOptions,
+            'autocomplete' => 'off',
+            'value' => $value
+        ]);
     }
 }
